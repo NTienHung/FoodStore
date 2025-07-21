@@ -1,0 +1,141 @@
+﻿@page
+@model FoodStoreClient.Pages.Customer.Restoran_Order_FandB.View_OrderModel
+@{
+    ViewBag.PageTitle = "Our Menu";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Customer/Restoran_Home/Home", "Home"),
+        Tuple.Create("View_Order", "Order")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Bootstrap Restaurant Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Menu Start -->
+        <div class="container-xxl py-5">
+            <div class="container">
+                <h1>Welcome to view page</h1>
+                <form method="post">
+                    <div class="container mt-5">
+                        <!-- Order Summary -->
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h4 style="color: white">Order Summary</h4>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Order ID:</strong> @Model.Order.OrderId</p>
+                                @* <p><strong>Customer Name:</strong> @Model.Order.Name</p> *@
+                                <p><strong>Order Date:</strong> @Model.Order.CreateAt</p>
+                                <p><strong>Status:</strong> <span style="color: red">@Model.Order.Status</span></p>
+                                <p><strong>Total Items:</strong> @Model.totalItem</p>
+                                <p><strong>Grand Total:</strong> @(string.Format("{0:N0}", Model.Order.Gtotal)) vnđ</p>
+                                @if (Model.Order.Status == "Received")
+                                {
+                                    <p><strong>The date the customer successfully received the goods: </strong>@Model.Order.UpdateAt</p>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="mt-4">
+                            <h5>Order Items</h5>
+                            <table class="table table-bordered">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product Name</th>
+                                        <th>Image</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Total Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.listOrderItems)
+                                    {
+                                        <tr>
+                                            <td>@order.OrderItemId</td>
+                                            <td>@order.Name</td>
+                                            <td><img class="flex-shrink-0 img-fluid rounded" src="@order.Images" style="width: 40px; height: 40px" /></td>
+                                            <td>@order.Quantity</td>
+                                            <td>@(string.Format("{0:N0}", order.Price)) vnđ</td>
+                                            <td>@(string.Format("{0:N0}", order.Price * order.Quantity)) vnđ</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <input type="hidden" value="@Model.Order.OrderId" name="orderId" />
+                        <!-- Actions -->
+                        <div class="mt-4">
+                            <a href="/Customer/Restoran_Order_FandB/Order" class="btn btn-primary">Return Page List Order</a>
+                            @if (Model.Order.Status == "Successful Delivery")
+                            {
+                                <form method="post" asp-page="/Customer/Restoran_Order_FandB/View_Order">
+                                    <input type="hidden" name="statusOrder" value="Received" />
+                                    <button type="submit" class="btn btn-success">Received</button>
+                                </form>
+                            }
+                            @if (Model.Order.Status == "Pending")
+                            {
+                                <form method="post" asp-page="/Customer/Restoran_Order_FandB/View_Order">
+                                    <input type="hidden" name="statusOrder" value="Cancel Order" />
+                                    <button style="color:red" type="submit" class="btn btn-success">Cancel Order</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- Back to Top -->
+            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        </div>
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/lib/wow/wow.min.js"></script>
+        <script src="~/lib/easing/easing.min.js"></script>
+        <script src="~/lib/waypoints/waypoints.min.js"></script>
+        <script src="~/lib/counterup/counterup.min.js"></script>
+        <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+        <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+        <!-- Template Javascript -->
+        <script src="~/js/main.js"></script>
+</body>
+
+</html>

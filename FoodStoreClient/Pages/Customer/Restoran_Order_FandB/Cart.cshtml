@@ -1,0 +1,252 @@
+﻿@page
+@model FoodStoreClient.Pages.Customer.Restoran_Order_FandB.CartModel
+@{
+    ViewBag.PageTitle = "Our Menu";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Customer/Restoran_Home/Home", "Home"),
+        Tuple.Create("Cart", "Cart")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Shopping Cart</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Shopping Cart Start -->
+        <div class="container py-5">
+            <h2 class="section-title text-start text-primary mb-4">Your Shopping Cart</h2>
+            <div class="table-responsive" style="border: 1px solid gray; margin-bottom: 15px">
+                <table class="table table-bordered">
+                    <thead class="bg-light">
+                        <tr>
+                            <th style="width: 5%; text-align: center;">Select</th>
+                            <th style="width: 20%;">Product</th>
+                            <th style="width: 15%;">Price</th>
+                            <th style="width: 5%;">Quantity</th>
+                            <th style="width: 5%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.listOrder)
+                        {
+                            if (order.Status == "Pending")
+                            {
+                                foreach (var orderItem in Model.listOrderItems)
+                                {
+                                    if (order.OrderId == orderItem.OrderId)
+                                    {
+                                        <tr>
+                                            <td style="width: 5%; text-align: center;">
+                                                <input type="checkbox" class="item-checkbox"
+                                                       data-price="@(orderItem.Product.Price * orderItem.Quantity)" />
+                                            </td>
+                                            <td style="width: 20%;">
+                                                <img src="@orderItem.Product.Images" alt="Product" class="img-fluid" style="width: 50px;">
+                                                <span>@orderItem.Product.Name</span>
+                                            </td>
+                                            <td style="width: 15%;">@string.Format("{0:N0}", orderItem.Product.Price) vnđ</td>
+                                            <td style="width: 5%;">@orderItem.Quantity</td>
+                                            <td style="width: 5%; text-align: center;">
+                                                <form method="post">
+                                                    <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
+                                                    <input type="hidden" name="orderId" value="@orderItem.OrderId" />
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: center; vertical-align: middle;">
+                                Total bill: <span id="selectedTotal">0</span> vnđ
+                            </td>
+                            <td colspan="2" style="text-align: right;">
+                                <form method="post" asp-page-handler="Checkout" id="checkoutForm">
+                                    <input type="hidden" name="selectedOrderItems" id="selectedOrderItems" />
+                                    <input type="hidden" name="totalAmount" id="totalAmount" />
+                                    <button type="button" class="btn btn-primary" onclick="submitCheckout()">Checkout</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div class="col-12" id="qrSection" style="display: block; text-align: center;">
+                    <h4>Mã QR Thanh Toán</h4>
+                    <img id="qrCodeImage" src="" alt="VietQR Code" style="max-width: 200px;" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function submitCheckout() {
+            const selectedItems = [];
+            let totalAmount = 0;
+
+            document.querySelectorAll('.item-checkbox:checked').forEach(function (checkbox) {
+                selectedItems.push(checkbox.closest('tr').querySelector('input[name="orderItemId"]').value);
+                totalAmount += parseFloat(checkbox.getAttribute('data-price'));
+            });
+
+            // Set the values to hidden inputs
+            document.getElementById('selectedOrderItems').value = selectedItems.join(',');
+            document.getElementById('totalAmount').value = totalAmount;
+
+            // Submit the form
+            document.getElementById('checkoutForm').submit();
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            const totalDisplay = document.getElementById('selectedTotal');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateTotal);
+            });
+
+            function updateTotal() {
+                let total = 0;
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        total += parseFloat(checkbox.getAttribute('data-price')) || 0;
+                    }
+                });
+                totalDisplay.textContent = new Intl.NumberFormat().format(total);
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            const totalDisplay = document.getElementById('selectedTotal');
+            const qrSection = document.getElementById('qrSection');
+            const qrCodeImage = document.getElementById('qrCodeImage');
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    updateTotalAndQR();
+                });
+            });
+
+            function updateTotalAndQR() {
+                let total = 0;
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        total += parseFloat(checkbox.getAttribute('data-price')) || 0;
+                    }
+                });
+                totalDisplay.textContent = new Intl.NumberFormat().format(total);
+
+                if (total > 0) {
+                    generateQR(total);
+                } else {
+                    qrCodeImage.src = "";
+                }
+            }
+
+            function generateQR(amount) {
+                var account = "0824530346";
+                var bank = "MB";
+                var description = "Thanh toán đơn hàng";
+
+                var qrUrl = `http://localhost:7031/api/VietQR/generate?account=${account}&bank=${bank}&amount=${amount}&description=${encodeURIComponent(description)}`;
+
+                fetch(qrUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Không thể lấy QR");
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        qrCodeImage.src = URL.createObjectURL(blob);
+                    })
+                    .catch(error => {
+                        console.error("Lỗi tải QR:", error);
+                        qrCodeImage.src = "";
+                    });
+            }
+        });
+    </script>
+
+    <script>
+        function calculateTotal() {
+            let total = 0;
+
+            document.querySelectorAll('.item-checkbox:checked').forEach(function (checkbox) {
+
+                const price = parseFloat(checkbox.getAttribute('data-price'));
+                const quantity = parseInt(checkbox.getAttribute('data-quantity'));
+                total += price * quantity;
+            });
+
+            document.getElementById('totalDisplay').innerText = total.toLocaleString();
+        }
+    </script>
+
+
+    @*  <table>
+    <tr>
+    <td>Total bill</td>
+    <td></td>
+    </tr>
+    <tr>
+    <td>@string.Format("{0:N0}", order.Gtotal) nvđ</td>
+    <td></td>
+
+    </tr>
+    </table> *@
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>

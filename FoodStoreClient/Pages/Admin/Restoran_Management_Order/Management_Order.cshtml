@@ -1,0 +1,423 @@
+﻿@page
+@model FoodStoreClient.Pages.Admin.Restoran_Management_Order.Management_OrderModel
+@{
+    ViewBag.PageTitle = "Admin";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Admin/Restoran_Management_Account/Management_Account", "Admin"),
+        Tuple.Create("Management_Order", "Manage Order")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Order Management - Restoran</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="bg-white p-4 rounded shadow">
+            <h4 class="text-center text-primary mb-4">Order Management</h4>
+
+            <!-- Form lọc -->
+            <!-- Search by Customer Name -->
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <input type="text" id="customerName" class="form-control" placeholder="🔍 Search by Customer Name...">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary w-100" onclick="applyFilters()">Search</button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="filterStatus" class="form-select" onchange="filterByStatus()">
+                    <option value="">Filter by Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+            </div>
+            <!-- Filter by Date Range -->
+            <form method="post" class="row mb-4">
+                <div class="col-md-5">
+                    <label for="from" class="form-label">From:</label>
+                    <input type="date" class="form-control" id="fromDate" name="from"
+                           max="@Model.dateNow?.ToString("yyyy-MM-dd")"
+                           min="@Model.datePast?.ToString("yyyy-MM-dd")"
+                           value="@Model.dateSevenDay?.ToString("yyyy-MM-dd")" required>
+                </div>
+                <div class="col-md-5">
+                    <label for="to" class="form-label">To:</label>
+                    <input type="date" class="form-control" id="toDate" name="to"
+                           max="@Model.dateNow?.ToString("yyyy-MM-dd")"
+                           min="@Model.datePast?.ToString("yyyy-MM-dd")"
+                           value="@Model.dateNow?.ToString("yyyy-MM-dd")" required>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <input type="submit" class="btn btn-primary w-100" value="Filter">
+                </div>
+            </form>
+
+
+
+            <!-- Bảng đơn hàng -->
+            @if (Model.FilteredOrders != null && Model.FilteredOrders.Any())
+            {
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Name</th>
+                            <th>Total (vnđ)</th>
+                            <th>Order Date</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.FilteredOrders)
+                        {
+                            <tr>
+                                <td>@order.OrderId</td>
+                                <td>@(order.CustomerName ?? "-")</td>
+                                <td>@(string.Format("{0:N0}", order.Gtotal ?? 0))</td>
+                                <td>@(order.OrderDate?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                <td>
+                                    <span class="badge
+                                        @(order.Status?.Trim().ToLower() == "completed" ? "bg-primary" :
+                                          order.Status?.Trim().ToLower() == "pending" ? "bg-success" :
+                                          order.Status?.Trim().ToLower() == "cancelled" ? "bg-warning text-dark" : "bg-secondary")">
+                                        @order.Status
+                                    </span>
+                                </td>
+                                <td>@(order.CreateAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" onclick="viewDetails(@order.OrderId)">👁️</button>
+                                    <button class="btn btn-sm btn-warning" onclick="openEditModal(@order.OrderId)">✏️</button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteOrder(@order.OrderId)">🗑️</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">No orders found in selected range.</div>
+            }
+        </div>
+    </div>
+    <!-- Modal Add/Edit -->
+    <div class="modal" tabindex="-1" id="orderModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add/Edit Order</h5>
+                    <button type="button" class="btn-close" onclick="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label>Customer Name</label>
+                        <input type="text" class="form-control" id="customerNameModal" readonly />
+                    </div>
+                    <div class="mb-2">
+                        <label>Customer ID</label>
+                        <input type="number" class="form-control" id="customerId" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Total</label>
+                        <input type="number" class="form-control" id="gtotal" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Status</label>
+                        <select class="form-select" id="status">
+                            <option value="">-- Select Status --</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Order Date</label>
+                        <input type="date" class="form-control" id="orderDate" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveOrder()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Details -->
+    <div class="modal" tabindex="-1" id="orderDetailsModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close" onclick="closeDetailsModal()"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                            <th>Price (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailsTableBody">
+                        <!-- Dynamic data here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <script>
+
+        let originalOrders = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredOrders));
+
+        let editingId = null;
+
+
+        async function applyFilters() {
+            let customerName = document.getElementById("customerName").value.trim();
+
+            if (!customerName) {
+                location.reload();
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:7031/api/Order/Admin/SearchByCustomerName?name=${encodeURIComponent(customerName)}`);
+                if (!response.ok) throw new Error(await response.text());
+
+                const result = await response.json();
+                console.log("Dữ liệu API trả về:", result);
+
+                const orders = result.$values || [];  // ✅ lấy chính xác $values ra
+
+                renderOrderTable(orders);
+
+            } catch (error) {
+                console.error("Search failed:", error);
+                alert("Failed to search orders.");
+            }
+        }
+
+    
+            async function viewDetails(orderId) {
+        try {
+            const response = await fetch(`http://localhost:7031/api/Order/Admin/GetOrderDetails/${orderId}`);
+            if (!response.ok) throw new Error(await response.text());
+
+            const result = await response.json();
+            console.log("Order Details:", result);
+
+            const tbody = document.getElementById("detailsTableBody");
+            tbody.innerHTML = "";
+
+            const details = result.$values || [];
+            if (details.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='3' class='text-center'>No details found</td></tr>";
+            } else {
+                details.forEach(item => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${item.name ?? '-'}</td>
+                        <td>${item.quantity ?? 0}</td>
+                        <td>${(item.price ?? 0).toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            showDetailsModal();
+        } catch (error) {
+            console.error("View details failed:", error);
+            alert("Failed to load order details.");
+        }
+        }
+
+        function showDetailsModal() {
+            const modal = new bootstrap.Modal(document.getElementById("orderDetailsModal"));
+            modal.show();
+        }
+
+        function closeDetailsModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("orderDetailsModal"));
+            modal.hide();
+        }
+
+         async function filterByStatus() {
+    const selectedStatus = document.getElementById("filterStatus").value.trim();
+
+    if (!selectedStatus) {
+        location.reload();
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:7031/api/Order/Admin/FilterByStatus?status=${encodeURIComponent(selectedStatus)}`);
+        if (!response.ok) {
+            throw new Error(await response.text());
+        }
+
+        const result = await response.json();
+        console.log("Orders filter by status:", result);
+
+        const orders = result.$values || [];
+        renderOrderTable(orders);
+    } catch (error) {
+        console.error("Failed to filter orders by status:", error);
+        alert("Error filtering orders by status.");
+    }
+}
+
+
+
+
+        function renderOrderTable(orders) {
+            const tbody = document.querySelector("tbody");
+            tbody.innerHTML = "";
+
+            orders.forEach(order => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${order.orderId}</td>
+                    <td>${order.customerName ?? '-'}</td>
+                    <td>${(order.gtotal ?? 0).toLocaleString()}</td>
+                    <td>${order.orderDate ? new Date(order.orderDate).toLocaleDateString() : "-"}</td>
+                    <td>
+                        <span class="badge ${order.status?.trim().toLowerCase() === 'completed' ? 'bg-primary' :
+                        order.status?.trim().toLowerCase() === 'pending' ? 'bg-success' :
+                            order.status?.trim().toLowerCase() === 'cancelled' ? 'bg-warning text-dark' : 'bg-secondary'
+                    }">${order.status ?? "-"}</span>
+                    </td>
+                    <td>${order.createAt ? new Date(order.createAt).toLocaleString() : "-"}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="openEditModal(${order.orderId})">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.orderId})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+
+        function openEditModal(id) {
+            const order = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FilteredOrders));
+            const o = order.find(x => x.OrderId === id);
+            if (!o) return alert("Order not found");
+
+            editingId = id;
+            document.getElementById("modalTitle").textContent = "Edit Order";
+
+            document.getElementById("customerNameModal").value = o.CustomerName ?? "-";
+            document.getElementById("customerId").value = o.CustomerId ?? 0;
+
+            document.getElementById("gtotal").value = o.Gtotal ?? 0;
+            document.getElementById("status").value = o.Status ?? "";
+            document.getElementById("orderDate").value = o.OrderDate?.split("T")[0] ?? "";
+
+            document.getElementById("customerId").setAttribute("readonly", "readonly");
+
+            showModal();
+        }
+
+
+
+
+
+        function showModal() {
+            const modal = new bootstrap.Modal(document.getElementById("orderModal"));
+            modal.show();
+        }
+
+        function closeModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("orderModal"));
+            modal.hide();
+        }
+
+        async function saveOrder() {
+    const customerId = Number(document.getElementById("customerId").value);
+    const gtotal = Number(document.getElementById("gtotal").value);
+    const status = document.getElementById("status").value.trim();
+    const orderDate = document.getElementById("orderDate").value;
+    if (!customerId) {
+        alert("Customer ID cannot be empty!");
+        return;
+    }
+    if (isNaN(gtotal) || gtotal < 0) {
+        alert("Total must be a non-negative number!");
+        return;
+    }
+    if (!status) {
+        alert("Status cannot be empty!");
+        return;
+    }
+    if (!orderDate) {
+        alert("Order Date cannot be empty!");
+        return;
+    }
+
+    const payload = {
+        customerId: customerId,
+        gtotal: gtotal,
+        status: status,
+        orderDate: orderDate,
+        orderId: editingId 
+    };
+
+    try {
+        const response = await fetch(`http://localhost:7031/api/Order/Admin/Update`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            alert("Saved successfully!");
+            location.reload();
+        } else {
+            const errorText = await response.text();
+            alert("Save failed:\n" + errorText);
+        }
+    } catch (error) {
+        console.error("Save error:", error);
+        alert("An error occurred while saving.");
+    }
+}
+
+
+
+
+
+        async function deleteOrder(id) {
+            if (!confirm("Are you sure you want to delete this order?")) return;
+
+            const response = await fetch(`http://localhost:7031/api/Order/Admin/Delete/${id}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                alert("Deleted successfully!");
+                location.reload();
+            } else {
+                alert("Delete failed.");
+            }
+        }
+    </script>
+</body>
+</html>

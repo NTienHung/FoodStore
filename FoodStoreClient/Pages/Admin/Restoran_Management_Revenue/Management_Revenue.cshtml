@@ -1,0 +1,157 @@
+﻿@page
+@model FoodStoreClient.Pages.Admin.Restoran_Management_Revenue.Management_RevenueModel
+@{
+    ViewBag.PageTitle = "Admin";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Admin/Restoran_Management_Account/Management_Account", "Admin"),
+        Tuple.Create("Management_Revenue", "Manage Revenue")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Bootstrap Restaurant Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+    <div class="container">
+
+        <div class="profile-header">
+        </div>
+
+        <div style="">
+            <div class="container border p-4 rounded shadow-lg bg-white" style="max-width: 900px; opacity: 0.9;">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <h5 class="section-title ff-secondary text-center text-primary fw-normal">Revenue Report</h5>
+                        <form method="post">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label for="Username" class="form-label">From:</label>
+                                    <input type="date" class="form-control" id="fromDate" name="from"
+                                           max="@Model.dateNow?.ToString("yyyy-MM-dd")"
+                                           min="@Model.datePast?.ToString("yyyy-MM-dd")"
+                                           value="@Model.dateSevenDay?.ToString("yyyy-MM-dd")" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="Name" class="form-label">To:</label>
+                                    <input type="date" class="form-control" id="toDate" name="to"
+                                           max="@Model.dateNow?.ToString("yyyy-MM-dd")"
+                                           min="@Model.datePast?.ToString("yyyy-MM-dd")"
+                                           value="@Model.dateNow?.ToString("yyyy-MM-dd")" required>
+                                </div>
+                                <div class="col-md-2">
+                                    <label></label>
+                                    <input type="submit" name="action" value="filter" class="btn btn-primary py-2 px-4" style="margin-top: 5px" value="Filter">
+                                    <input type="submit" name="action" value="export" class="btn btn-primary py-2 px-4" style="margin-top: 5px" value="ExportFile">
+                                </div>
+                                
+                        </form>
+                    </div>
+                    @if (Model.revenue != null)
+                    {
+                        <div>
+                            <h4>Products Sold</h4>
+                            <div>
+                                <div>
+                                    <strong>Revenue Report:</strong> <span style="color: red">@(string.Format("{0:N0}", Model.revenuePrice)) vnđ</span>
+                                </div>
+                                <div>
+                                    <strong>Interest Rate:</strong> <span style="color: red">@(string.Format("{0:N0}", Model.interestRate)) vnđ</span>
+                                </div>
+                                <div>
+                                    <strong>Floor Fee:</strong> <span style="color: red">@(string.Format("{0:N0}", Model.FloorFee)) vnđ</span>
+                                </div>
+                            </div>
+                            <table class="table">
+                                <tr>
+                                    <th style="width:100px">Image</th>
+                                    <th style="width:160px">Name</th>
+                                    <th style="width:100px">Quantity</th>
+                                    <th style="width:160px">Order Date</th>
+                                </tr>
+                                @foreach (var pro in Model.product)
+                                {
+                                    <tr>
+                                        <td style="width:100px">
+                                            <img class="flex-shrink-0 img-fluid rounded" src="@pro.Images" style="width: 40px; height: 40px" />
+                                        </td>
+                                        <td style="width:160px">@pro.Name</td>
+                                        <td style="width:100px">@pro.Quantity</td>
+                                        <td style="width:160px">@(pro.CreateAt.HasValue ? pro.CreateAt.Value.ToString("dd/MM/yyyy") : "")</td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    @if (!string.IsNullOrEmpty(Model.errorMessage))
+    {
+        <div>
+            <div id="toastNotification" class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050; border-radius: 10px; overflow: hidden; width: 350px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                <div class="d-flex">
+                    <div class="toast-body p-3" style="font-size: 16px; line-height: 1.4; color: #666565;">
+                        @Model.errorMessage
+                    </div>
+                </div>
+                <!-- Progress bar for countdown -->
+                <div class="toast-progress-bar" style="height: 5px; background-color: rgba(255, 255, 255, 0.3);"></div>
+            </div>
+        </div>
+    }
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>

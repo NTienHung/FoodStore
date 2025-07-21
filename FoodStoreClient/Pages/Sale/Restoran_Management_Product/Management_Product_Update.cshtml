@@ -1,0 +1,227 @@
+﻿@page
+@model FoodStoreClient.Pages.Sale.Restoran_Management_Product.Management_Product_UpdateModel
+@{
+    ViewData["Title"] = "Product Update";
+    var errorMessage = TempData["ErrorMessage"] as string;
+    ViewBag.PageTitle = "Sale";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+       Tuple.Create("/Sale/Restoran_Management_Menu/Menu", "Sale"),
+        Tuple.Create("Management_Product_Update", "Update Product")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Bootstrap Restaurant Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Menu Start -->
+        <div class="container py-5">
+            <h1>Product Update</h1>
+
+            <!-- Displaying Product Details -->
+            @if (Model.Product != null)
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="@Model.Product.Images" alt="" style="width: 400px; height: 330px" class="img-fluid" />
+                    </div>
+                    <div class="col-md-8">
+                        <h2></h2>
+                        <p><strong>Name:</strong> @Model.Product.Name</p>
+                        <p><strong>Price:</strong> @(string.Format("{0:N0}", Model.Product.Price)) vnđ</p>
+                        <p><strong>Unit:</strong> @Model.Product.Unit</p>
+                        <p><strong>Quantity:</strong> @Model.Product.Quantity</p>
+                        <p><strong>Status:</strong> @Model.Product.ProductStatus</p>
+                        <p><strong>Posted Date:</strong> @(Model.Product.CreateAt.HasValue ? Model.Product.CreateAt.Value.ToString("dd/MM/yyyy") : "")</p>
+                        <p><strong>Category:</strong> @Model.Product.CateName</p>
+                        <p><strong>Account Posted:</strong> @Model.Product.Name</p>
+                    </div>
+                </div>
+
+                <div class="mt-3 d-flex justify-content-between">
+                    <a href="/Sale/Restoran_Management_Product/Management_Product" class="btn btn-primary">Return Page List Product</a>
+                    <button id="updateProductBtn" class="btn btn-primary py-2 px-4">Update Product</button>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div>
+                    <div id="toastNotification" class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050; border-radius: 10px; overflow: hidden; width: 350px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <div class="d-flex">
+                            <div class="toast-body p-3" style="font-size: 16px; line-height: 1.4; color: #666565;">
+                                @errorMessage
+                            </div>
+                        </div>
+                        <!-- Progress bar for countdown -->
+                        <div class="toast-progress-bar" style="height: 5px; background-color: rgba(255, 255, 255, 0.3);"></div>
+                    </div>
+                </div>
+            }
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    var toastElement = document.getElementById("toastNotification");
+                    var progressBar = document.createElement('div');
+                    progressBar.classList.add("toast-progress-bar");
+                    progressBar.style = "position: absolute; bottom: 0; left: 0; height: 5px; background-color: orange;";
+                    toastElement.appendChild(progressBar);
+
+                    var duration = 4000;
+                    var startTime = Date.now();
+
+                    if (toastElement) {
+                        var interval = setInterval(function () {
+                            var elapsedTime = Date.now() - startTime;
+                            var progress = (elapsedTime / duration) * 100;
+
+                            progressBar.style.width = progress + "%";
+
+                            if (elapsedTime >= duration) {
+                                clearInterval(interval);
+                                var toast = new bootstrap.Toast(toastElement);
+                                toast.hide();
+                            }
+                        }, 100);
+                    }
+                });
+            </script>
+        </div>
+        <div id="updateProductForm" style="display:none;">
+            <div class="container border p-4 rounded shadow-lg bg-white" style="max-width: 900px; opacity: 0.9;">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="container mt-3">
+                            <h5 class="section-title ff-secondary text-center text-primary fw-normal">Update Product</h5>
+                            <form method="post">
+                                <div class="row">
+                                    <!-- Cột 1 -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="Name" class="form-label">Name</label>
+                                            <input type="text" class="form-control" id="Name" name="name" value="@Model.Product.Name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="Price" class="form-label">Price</label>
+                                            <input type="text" class="form-control" id="Price" name="price" value="@((int)Model.Product.Price)" required>
+                                        </div>
+                                        @* <div class="mb-3">
+                                            <label for="Price" class="form-label">Price Original</label>
+                                            <input type="text" class="form-control" id="Price" name="priceOriginal" value="@((int)Model.Product.OriginalPrice)" required>
+                                        </div> *@
+                                        <div class="mb-3">
+                                            <label for="Status" class="form-label">Status</label>
+                                            <select class="form-control" id="status" name="status" required>
+                                                <option value="On" selected="@(Model.Product.ProductStatus == "On")">On</option>
+                                                <option value="Off" selected="@(Model.Product.ProductStatus == "Off")">Off</option>
+                                            </select>
+                                        </div>
+                                        @* div class="mb-3">
+                                            <label for="DiscountStartTime" class="form-label">Discount Start Time</label>
+                                            <input type="datetime-local" class="form-control" id="discountstarttime" name="discountstarttime" value="@(model.product.discountstarttime?.tostring("yyyy-mm-ddthh:mm"))">
+                                        </div> *@
+                                    </div>
+                           
+
+                                    <!-- Cột 2 -->
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="Quantity" class="form-label">Quantity</label>
+                                            <input type="text" class="form-control" id="Quantity" name="quantity" value="@Model.Product.Quantity" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="Unit" class="form-label">Unit</label>
+                                            <input type="text" class="form-control" id="unit" name="unit" value="@Model.Product.Unit" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="Category" class="form-label">Category</label>
+                                            <select class="form-control" id="category" name="categpry" required>
+                                                <option value="1" selected="@(Model.Product.CateName == "Breakfast")">Breakfast</option>
+                                                <option value="2" selected="@(Model.Product.CateName == "Launch")">Launch</option>
+                                                <option value="3" selected="@(Model.Product.CateName == "Dinner")">Dinner</option>
+                                                <option value="4" selected="@(Model.Product.CateName == "Drinks")">Drinks</option>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" value="@Model.Product.ProId" name="proId"/>
+                                        @* <div class="mb-3">
+                                            <label for="DiscountStartTime" class="form-label">Discount End Time</label>
+                                            <input type="datetime-local" class="form-control" id="DiscountEndTime" name="discountEndTime" value="@(Model.Product.DiscountStartTime?.ToString("yyyy-MM-ddTHH:mm"))">
+                                        </div> *@
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="">
+                                            <label for="Phonenumber" class="form-label">Product Image:</label>
+                                            <textarea class="form-control" name="image" rows="4" required>@Model.Product.Images</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-3">
+                                    <button type="submit" class="btn btn-primary py-2 px-4">Update Product</button>
+                                </div>
+                            </form>
+                        </div>
+
+                </div>
+            </div>
+        </div>
+        <script>
+            document.getElementById("updateProductBtn").addEventListener("click", function () {
+                var form = document.getElementById("updateProductForm");
+                if (form.style.display === "none" || form.style.display === "") {
+                    form.style.display = "block";
+                } else {
+                    form.style.display = "none";
+                }
+            });
+        </script>
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>
+

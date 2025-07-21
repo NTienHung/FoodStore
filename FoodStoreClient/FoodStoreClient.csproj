@@ -1,0 +1,129 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\img\about-1.jpg" />
+    <Content Remove="wwwroot\img\about-2.jpg" />
+    <Content Remove="wwwroot\img\about-3.jpg" />
+    <Content Remove="wwwroot\img\about-4.jpg" />
+    <Content Remove="wwwroot\img\avatar.jpg" />
+    <Content Remove="wwwroot\img\bg-hero.jpg" />
+    <Content Remove="wwwroot\img\Cute-Japanese-Wallpaper-1920x1080-1.jpg" />
+    <Content Remove="wwwroot\img\Food_background.jpg" />
+    <Content Remove="wwwroot\img\hero.png" />
+    <Content Remove="wwwroot\img\menu-1.jpg" />
+    <Content Remove="wwwroot\img\menu-2.jpg" />
+    <Content Remove="wwwroot\img\menu-3.jpg" />
+    <Content Remove="wwwroot\img\menu-4.jpg" />
+    <Content Remove="wwwroot\img\menu-5.jpg" />
+    <Content Remove="wwwroot\img\menu-6.jpg" />
+    <Content Remove="wwwroot\img\menu-7.jpg" />
+    <Content Remove="wwwroot\img\menu-8.jpg" />
+    <Content Remove="wwwroot\img\team-1.jpg" />
+    <Content Remove="wwwroot\img\team-2.jpg" />
+    <Content Remove="wwwroot\img\team-3.jpg" />
+    <Content Remove="wwwroot\img\team-4.jpg" />
+    <Content Remove="wwwroot\img\testimonial-1.jpg" />
+    <Content Remove="wwwroot\img\testimonial-2.jpg" />
+    <Content Remove="wwwroot\img\testimonial-3.jpg" />
+    <Content Remove="wwwroot\img\testimonial-4.jpg" />
+    <Content Remove="wwwroot\img\toys_and_food_hd_kawaii-1920x1080.jpg" />
+    <Content Remove="wwwroot\img\video.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Pages\Admin\Restoran_Logout\Logout.cshtml" />
+    <None Include="Pages\Sale\Resstoran_UserProfile\Profile.cshtml" />
+    <None Include="Pages\Sale\Restoran_Change_Password\Change_Passwords.cshtml" />
+    <None Include="wwwroot\js\site.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-reboot.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-utilities.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap.rtl.min.css.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.bundle.min.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.esm.min.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.js.map" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js" />
+    <None Include="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map" />
+    <None Include="wwwroot\lib\bootstrap\LICENSE" />
+    <None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
+    <None Include="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
+    <None Include="wwwroot\lib\jquery-validation\dist\additional-methods.js" />
+    <None Include="wwwroot\lib\jquery-validation\dist\additional-methods.min.js" />
+    <None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.js" />
+    <None Include="wwwroot\lib\jquery-validation\dist\jquery.validate.min.js" />
+    <None Include="wwwroot\lib\jquery-validation\LICENSE.md" />
+    <None Include="wwwroot\lib\jquery\dist\jquery.js" />
+    <None Include="wwwroot\lib\jquery\dist\jquery.min.js" />
+    <None Include="wwwroot\lib\jquery\dist\jquery.min.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Ship\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="EPPlus" Version="6.2.19" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Guest\" />
+    <ProjectReference Include="..\FoodStoreAPI\FoodStoreAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\img\about-1.jpg" />
+    <Resource Include="wwwroot\img\about-2.jpg" />
+    <Resource Include="wwwroot\img\about-3.jpg" />
+    <Resource Include="wwwroot\img\about-4.jpg" />
+    <Resource Include="wwwroot\img\avatar.jpg" />
+    <Resource Include="wwwroot\img\bg-hero.jpg" />
+    <Resource Include="wwwroot\img\Cute-Japanese-Wallpaper-1920x1080-1.jpg" />
+    <Resource Include="wwwroot\img\Food_background.jpg" />
+    <Resource Include="wwwroot\img\hero.png" />
+    <Resource Include="wwwroot\img\menu-1.jpg" />
+    <Resource Include="wwwroot\img\menu-2.jpg" />
+    <Resource Include="wwwroot\img\menu-3.jpg" />
+    <Resource Include="wwwroot\img\menu-4.jpg" />
+    <Resource Include="wwwroot\img\menu-5.jpg" />
+    <Resource Include="wwwroot\img\menu-6.jpg" />
+    <Resource Include="wwwroot\img\menu-7.jpg" />
+    <Resource Include="wwwroot\img\menu-8.jpg" />
+    <Resource Include="wwwroot\img\team-1.jpg" />
+    <Resource Include="wwwroot\img\team-2.jpg" />
+    <Resource Include="wwwroot\img\team-3.jpg" />
+    <Resource Include="wwwroot\img\team-4.jpg" />
+    <Resource Include="wwwroot\img\testimonial-1.jpg" />
+    <Resource Include="wwwroot\img\testimonial-2.jpg" />
+    <Resource Include="wwwroot\img\testimonial-3.jpg" />
+    <Resource Include="wwwroot\img\testimonial-4.jpg" />
+    <Resource Include="wwwroot\img\toys_and_food_hd_kawaii-1920x1080.jpg" />
+    <Resource Include="wwwroot\img\video.jpg" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,180 @@
+﻿@page
+@model FoodStoreClient.Pages.Admin.Restoran_Management_Account.Management_AccountModel
+@{
+    ViewBag.PageTitle = "Admin";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Admin/Restoran_Management_Account/Management_Account", "Admin"),
+        Tuple.Create("Management_Account_Update", "Update Account")
+    };
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Bootstrap Restaurant Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Menu Start -->
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div style="padding-bottom: 5px;">
+                    <h2>User Management</h2>
+                    <a asp-page="/Admin/Restoran_Management_Account/Management_Account_Create" class="btn btn-primary">Add New User</a>
+                </div>
+                <table>
+                    <tr>
+                        <th style="padding-right: 2px; text-align: left;"></th>
+                        <th style="padding-right: 5px; text-align: left;"><label>Search: </label></th>
+                        <th style="padding-right: 10px; text-align: left;"></th>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <form method="get">
+                            <td style="padding-right: 5px; text-align: left;">
+                                <input type="text" value="@Model.searchAccount" name="search" />
+                            </td>
+                            <td>
+                                <select name="sortBy" style="padding-left: 5px;height:29px">
+                                    <option name="sortBy"  value="All">All</option>
+                                    <option name="sortBy"  value="fullnameAsc"> Username ASC</option>
+                                    <option name="sortBy" value="fullnameDesc">Username DESC</option>
+                                    <option name="sortBy" value="emailAsc"> Email ASC</option>
+                                    <option name="sortBy"  value="emailDESC">Email DESC</option>
+                                </select>
+                            </td>
+                            <td style="padding-right: 10px; text-align: left;"><input class="btn btn-primary" type="submit" value="Search" /></td>
+                        </form>
+                    </tr>
+                    <tr>
+                        <td> 
+
+                        </td>
+                    </tr>
+                </table>
+                <table class="table">
+                    <tr>
+                        <th>AccId</th>
+                        <th>Avatar</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <td>Phone</td>
+                        <th>Create_At</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                    @foreach (var pro in Model.listAcc)
+                    {
+                        <tr>
+                            <td>@pro.AccId</td>
+                            <td><img class="flex-shrink-0 img-fluid rounded" src="https://i.pinimg.com/1200x/16/b2/e2/16b2e2579118bf6fba3b56523583117f.jpg" style="width: 40px; height: 40px" /></td>
+                            <td>@pro.Username</td>
+                            <td>@pro.Email</td>
+                            <td>@pro.Phone</td>
+                            <td>@(pro.CreateAt.HasValue ? pro.CreateAt.Value.ToString("dd/MM/yyyy") : "")</td>
+                            <td>@pro.RoleName</td>
+                            <td>
+                                <a asp-page="/Admin/Restoran_Management_Account/Management_Account_Update" asp-route-accountId="@pro.AccId">View</a>
+                                <span>|</span>
+
+                                @{
+                                    if (pro.RoleId != 5)
+                                    {
+                                        <a style="color:red" asp-page="/Admin/Restoran_Management_Account/Management_Account" asp-route-accountId="@pro.AccId" asp-page-handler="Ban">Banned</a>
+                                    }
+                                }
+                                
+                                @{
+                                    if(pro.RoleId == 5)
+                                    {
+                                        <a style="color:green" asp-page="/Admin/Restoran_Management_Account/Management_Account" asp-route-accountId="@pro.AccId" asp-page-handler="Unban">Unban</a>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        <!-- Menu End -->
+        <div class="pagination-wrapper">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-page="./Management_Product" asp-route-pageNumber="@(Model.CurrentPage - 1)" asp-route-statusPage="@Model.status" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="visually-hidden">Previous</span>
+                            </a>
+                        </li>
+                    }
+
+                    @for (var i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-page="./Management_Product" asp-route-pageNumber="@i" asp-route-statusPage="@Model.status">@i</a>
+                        </li>
+                    }
+
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" asp-page="./Management_Product" asp-route-pageNumber="@(Model.CurrentPage + 1)" asp-route-statusPage="@Model.status" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="visually-hidden">Next</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>

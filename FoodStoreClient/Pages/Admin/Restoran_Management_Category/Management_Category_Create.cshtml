@@ -1,0 +1,147 @@
+﻿@page
+@model FoodStoreClient.Pages.Admin.Restoran_Management_Category.Management_Category_CreateModel
+@{
+    ViewBag.PageTitle = "Admin";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Admin/Restoran_Management_Account/Management_Account", "Admin"),
+        Tuple.Create("Management_Category_Create", "Create Category")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Bootstrap Restaurant Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-image: url('img\\cute-japanese-wallpaper-1920x1080-1.jpg');
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Menu Start -->
+        <div class="container-xxl py-5" style="background-image: url('@Url.Content("~/img/cute-japanese-wallpaper-1920x1080-1.jpg");">
+            <div class="container">                
+                <div style="padding-bottom: 10px; padding-top: 10px;">
+                    <h2>Category Management</h2>                  
+                </div>          
+                <div>
+                    <div>
+                        @{
+                            var errorMessage = TempData["ErrorMessage"] as string;
+                        }
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div>
+                                <div id="toastNotification" class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050; border-radius: 10px; overflow: hidden; width: 350px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                    <div class="d-flex">
+                                        <div class="toast-body p-3" style="font-size: 16px; line-height: 1.4; color: #666565;">
+                                            @errorMessage
+                                        </div>
+                                    </div>
+                                    <!-- Progress bar for countdown -->
+                                    <div class="toast-progress-bar" style="height: 5px; background-color: rgba(255, 255, 255, 0.3);"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div id="updateProductForm" style="display: block;padding:10px">
+                        <div class="container border p-4 rounded shadow-lg bg-white" style="max-width: 900px; opacity: 0.9;">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8">
+                                    <div class="container mt-3">
+                                        <h5 class="section-title ff-secondary text-center text-primary fw-normal">Add New Category</h5>
+                                        <form method="post">
+                                            <div class="row">
+                                                <!-- Cột 1 -->
+                                                <div class="col-md-12">
+                                                    <div class="mb-12">
+                                                        <label for="Name" class="form-label">Name</label>
+                                                        <input type="text" class="form-control" id="Name" asp-for="@Model.CategoryDTO.CateName" value="@Model.CategoryDTO.CateName" required>
+                                                    </div>
+                                                   
+                                                </div>
+                                            </div>
+                                            <div class="text-center mt-3">
+                                                <button type="submit" class="btn btn-primary py-2 px-4">Add New Category</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <table class="table" style="margin-top: 20px">
+                    <tr>
+                        <th>CategoryID</th>
+                        <th>CategoryName</th>
+                        <th>Actions</th>
+                    </tr>
+                    @foreach (var pro in Model.listCate)
+                    {
+                        <tr>
+                            <td>@pro.CateId</td>                            
+                            <td>@pro.CateName</td>
+                            <td>
+                                <a asp-page="/Admin/Restoran_Management_Category/Management_Category_Update" asp-route-cateId="@pro.CateId">View</a>
+                                    <span>|</span>
+                                <a asp-page="/Admin/Restoran_Management_Category/Management_Category_Delete" asp-route-cateId="@pro.CateId">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+        <!-- Menu End -->
+        
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+    </div>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>
+

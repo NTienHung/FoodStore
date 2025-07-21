@@ -1,0 +1,125 @@
+﻿@page
+@model FoodStoreClient.Pages.Customer.Restoran_Order_FandB.OrderModel
+@{
+    ViewBag.PageTitle = "Our Menu";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Customer/Restoran_Home/Home", "Home"),
+        Tuple.Create("Order", "Order")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Restoran - Shopping Cart</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="~/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&family=Pacifico&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="~/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Template Stylesheet -->
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Shopping Cart Start -->
+        <div class="container py-5">
+            <h2 class="section-title text-start text-primary mb-4">Your Shopping Order</h2>
+            @if (Model.listOrder != null && Model.listOrder.Any())
+            {
+                @foreach (var order in Model.listOrder)
+                {
+                    @if (!string.Equals(order.Status, "", StringComparison.OrdinalIgnoreCase))
+                    {
+                        <div class="table-responsive" style="border: 1px solid gray; margin-bottom: 15px">
+                            <table class="table table-bordered">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 20%;">Product</th>
+                                        <th style="width: 15%;">Price</th>
+                                        <th style="width: 5%;">Quantity</th>
+                                        <th style="width: 5%;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.listOrderItems != null)
+                                    {
+                                        @foreach (var orderItem in Model.listOrderItems.Where(oi => oi.OrderId == order.OrderId))
+                                        {
+                                            <tr>
+                                                <td style="width: 20%;">
+                                                    <img src="@orderItem.Images" alt="Product" class="img-fluid" style="width: 50px;">
+                                                    <span>@orderItem.Name</span>
+                                                </td>
+                                                <td style="width: 15%;"> @string.Format("{0:N0}", orderItem.Price) vnđ</td>
+                                                <td style="width: 5%;">@orderItem.Quantity</td>
+                                                <td style="width: 5%; text-align: center;">
+                                                    <a asp-page="/Customer/Restoran_Product_Detail/Product_Detail" class="btn btn-sm btn-primary" asp-route-id="@orderItem.ProductId">Detail</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                            <div style="text-align: center;">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <td style="width: 30%; text-align: center; vertical-align: middle;">
+                                            Total bill: @string.Format("{0:N0}", order.Gtotal) vnđ
+                                        </td>
+                                        <td style="width: 30%;"><a asp-page="/Customer/Restoran_Order_FandB/View_Order" class="btn btn-sm btn-primary" asp-route-orderId="@order.OrderId">View Order</a></td>
+                                        <td style="text-align: right; width: 30%;">
+                                            <div class="" style="color: black">Status Order: <span style="color: red">@order.Status</span></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <p>No orders found.</p>
+            }
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="~/lib/easing/easing.min.js"></script>
+    <script src="~/lib/waypoints/waypoints.min.js"></script>
+    <script src="~/lib/counterup/counterup.min.js"></script>
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment.min.js"></script>
+    <script src="~/lib/tempusdominus/js/moment-timezone.min.js"></script>
+    <script src="~/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="~/js/main.js"></script>
+</body>
+
+</html>

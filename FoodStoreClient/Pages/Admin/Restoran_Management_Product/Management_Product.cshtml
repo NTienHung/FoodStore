@@ -1,0 +1,363 @@
+﻿@page
+@model FoodStoreClient.Pages.Admin.Restoran_Management_Product.Management_ProductModel
+@{
+    ViewBag.PageTitle = "Admin";
+    ViewBag.Breadcrumbs = new List<Tuple<string, string>>
+    {
+        Tuple.Create("/Admin/Restoran_Management_Account/Management_Account", "Admin"),
+        Tuple.Create("Management_Product", "Manage Product")
+    };
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Product Management - Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="bg-white p-4 rounded shadow">
+            <h4 class="text-center text-primary mb-4">Product Management</h4>
+
+            <div class="d-flex justify-content-between mb-3">
+                <button class="btn btn-success" onclick="openAddModal()">+ Add Product</button>
+
+                <div class="d-flex">
+                    <select id="orderBySelect" class="form-select me-2" onchange="filterByStatus()" style="width: 170px;">
+                        <option value="">Filter By Status</option>
+                        <option value="On">On</option>
+                        <option value="Off">Off</option>
+                    </select>
+                    <select class="form-select me-2" id="filterCategorySelect" onchange="filterProductsByCategory()" style="width: 170px;">
+                        <option value="">Filter By Categories</option>
+                    </select>
+                    <form class="d-flex" onsubmit="event.preventDefault(); searchProducts();" >
+                        <input class="form-control me-2" id="searchInput" type="search" placeholder="Search product name" aria-label="Search" style="width: 150px;">
+                        <button class="btn btn-outline-primary" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+
+
+
+            <!-- Bảng sản phẩm -->
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Product ID</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Unit</th>
+                        <th>Category</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="productTable">
+                    <!-- Dữ liệu sẽ được load từ API -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Add/Edit -->
+    <div class="modal" tabindex="-1" id="productModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add/Edit Product</h5>
+                    <button type="button" class="btn-close" onclick="closeModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="productId" />
+                    <div class="mb-2">
+                        <label>Product Name</label>
+                        <input type="text" class="form-control" id="productName" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Price</label>
+                        <input type="number" class="form-control" id="productPrice" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Quantity</label>
+                        <input type="number" class="form-control" id="productQuantity" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Status</label>
+                        <select class="form-select" id="productStatus">
+                            <option value="On">On</option>
+                            <option value="Off">Off</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Unit</label>
+                        <input type="text" class="form-control" id="productUnit" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Category</label>
+                        <select class="form-select" id="categorySelect">
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Image URL</label>
+                        <input type="text" class="form-control" id="productImage" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveProduct()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editingId = null;
+
+        async function loadProducts() {
+            const response = await fetch('http://localhost:7031/api/admin/product');
+            const result = await response.json();
+            const products = result.$values || [];
+            displayProducts(products);
+        }
+
+        function displayProducts(products) {
+            const tbody = document.getElementById("productTable");
+            tbody.innerHTML = "";
+            products.forEach(p => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${p.proId}</td>
+                    <td>${p.name}</td>
+                    <td>${p.price != null ? p.price.toLocaleString() : "-"}</td>
+                    <td>${p.quantity != null ? p.quantity : "-"}</td>
+                    <td><span class="badge ${p.productStatus.trim().toLowerCase() === 'on' ? 'bg-success' : 'bg-secondary'}">${p.productStatus}</span></td>
+                    <td>${p.unit ?? '-'}</td>
+                    <td>${p.cateName ?? "-"}</td>
+                    <td>${p.createAt ? new Date(p.createAt).toLocaleDateString() : '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="openEditModal(${p.proId})">✏️</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.proId})">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function filterByStatus() {
+            const statusValue = document.getElementById("orderBySelect").value;
+
+            if (!statusValue) {
+                await loadProducts();
+                return;
+            }
+
+            const response = await fetch('http://localhost:7031/api/admin/product');
+            const result = await response.json();
+            let products = result.$values || [];
+
+            if (statusValue === "On") {
+                products = products.filter(p => p.productStatus.trim().toLowerCase() === "on");
+            } else if (statusValue === "Off") {
+                products = products.filter(p => p.productStatus.trim().toLowerCase() === "off");
+            }
+
+            displayProducts(products);
+        }
+
+
+
+
+        let categories = [];
+
+        async function loadCategories() {
+            const response = await fetch('http://localhost:7031/api/admin/product/category');
+            const result = await response.json();
+            categories = Array.isArray(result) ? result : result.$values || [];
+
+            const addEditSelect = document.getElementById("categorySelect");
+            const filterSelect = document.getElementById("filterCategorySelect");
+
+            addEditSelect.innerHTML = categories.map(c => `<option value="${c.cateId}">${c.cateName}</option>`).join('');
+
+            filterSelect.innerHTML = '<option value="">Filter by Categories</option>' +
+                categories.map(c => `<option value="${c.cateId}">${c.cateName}</option>`).join('');
+        }
+
+        async function filterProductsByCategory() {
+            const cateId = document.getElementById("filterCategorySelect").value;
+
+            if (!cateId) {
+                await loadProducts();
+                return;
+            }
+
+            const response = await fetch(`http://localhost:7031/api/admin/product/filter?categoryId=${cateId}`);
+            const result = await response.json();
+            const products = result.$values || [];
+            displayProducts(products);
+        }
+
+
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById("modalTitle").textContent = "Add Product";
+            clearModal();
+            showModal();
+        }
+
+        async function openEditModal(id) {
+            const response = await fetch(`http://localhost:7031/api/admin/product/${id}`);
+            const p = await response.json();
+            editingId = id;
+
+            document.getElementById("modalTitle").textContent = "Edit Product";
+            document.getElementById("productName").value = p.name;
+            document.getElementById("productPrice").value = p.price;
+            document.getElementById("productQuantity").value = p.quantity;
+            document.getElementById("productStatus").value = p.productStatus;
+            document.getElementById("productUnit").value = p.unit;
+            document.getElementById("productImage").value = p.images;
+            const select = document.getElementById("categorySelect");
+            if (categories.length === 0) {
+                const responseCate = await fetch('http://localhost:7031/api/admin/product/category');
+                const resultCate = await responseCate.json();
+                categories = Array.isArray(resultCate) ? resultCate : resultCate.$values || [];
+                select.innerHTML = categories.map(c => `<option value="${c.cateId}">${c.cateName}</option>`).join('');
+            }
+            if (p.cateId !== null && p.cateId !== undefined) {
+                select.value = p.cateId.toString();
+            }
+
+            showModal();
+        }
+
+
+
+        function clearModal() {
+            document.getElementById("productName").value = "";
+            document.getElementById("productPrice").value = "";
+            document.getElementById("productQuantity").value = "";
+            document.getElementById("productStatus").value = "";
+            document.getElementById("productUnit").value = "";
+            document.getElementById("categorySelect").value = "";
+            document.getElementById("productImage").value = "";
+        }
+
+
+        function showModal() {
+            const modal = new bootstrap.Modal(document.getElementById("productModal"));
+            modal.show();
+        }
+
+        function closeModal() {
+            const modal = bootstrap.Modal.getInstance(document.getElementById("productModal"));
+            modal.hide();
+        }
+
+        async function saveProduct() {
+            const name = document.getElementById("productName").value.trim();
+            const price = document.getElementById("productPrice").value;
+            const quantity = document.getElementById("productQuantity").value;
+            const status = document.getElementById("productStatus").value;
+            const unit = document.getElementById("productUnit").value.trim();
+            const category = document.getElementById("categorySelect").value;
+            const image = document.getElementById("productImage").value.trim();
+
+            // Validate - kiểm tra các trường không được để trống
+            if (!name || !price || !quantity || !status || !unit || !category || !image) {
+                alert("Please fill out all fields before saving!");
+                return;
+            }
+
+            // Validate - kiểm tra Price và Quantity không âm
+            if (parseFloat(price) < 0) {
+                alert("Price cannot be negative!");
+                return;
+            }
+            if (parseInt(quantity) < 0) {
+                alert("Quantity cannot be negative!");
+                return;
+            }
+
+            const payload = {
+                name: name,
+                price: parseFloat(price),
+                quantity: parseInt(quantity),
+                productStatus: status,
+                unit: unit,
+                cateId: parseInt(category),
+                images: image,
+                accId: 1,
+                discountStartTime: null,
+                discountEndTime: null,
+                discountPercentage: null
+            };
+
+            const method = editingId ? "PUT" : "POST";
+            const url = editingId
+                ? `http://localhost:7031/api/admin/product/${editingId}`
+                : "http://localhost:7031/api/admin/product";
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert("Saved successfully!");
+                location.reload();
+            } else {
+                const error = await response.text();
+                alert("Save failed: " + error);
+            }
+        }
+
+
+
+
+        async function deleteProduct(id) {
+            if (!confirm("Are you sure you want to delete this product?")) return;
+
+            const response = await fetch(`http://localhost:7031/api/admin/product/${id}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                alert("Deleted successfully!");
+                location.reload();
+            } else {
+                alert("Delete failed.");
+            }
+        }
+
+        async function searchProducts() {
+            const keyword = document.getElementById("searchInput").value.trim();
+            if (!keyword) {
+                loadProducts();
+                return;
+            }
+
+            const response = await fetch(`http://localhost:7031/api/admin/product/search?keyword=${keyword}`);
+            const result = await response.json();
+            const products = result.$values || [];
+            displayProducts(products);
+        }
+
+        window.onload = async function () {
+            await loadCategories();
+            await loadProducts();
+        }
+
+    </script>
+</body>
+</html>
