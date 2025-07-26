@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using Newtonsoft;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,8 @@ builder.Services.AddCors(options =>
                       });
 });
 
+
+
 builder.Services.AddAuthorization();
 builder.Services.AddHttpClient();
 
@@ -65,6 +68,7 @@ var mapperConfig = new MapperConfiguration(mc => mc.AddProfile(new MapperConfig(
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddTransient<AccountDAO>();
+builder.Services.AddScoped<ChatBotDAO>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
