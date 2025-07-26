@@ -1,0 +1,81 @@
+﻿@page
+@model FoodStoreClient.Pages.Admin.Restoran_Management_ChatBot.ChatBotModel
+@{
+    ViewData["Title"] = "ChatAI";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>ChatAI for Admin</h2>
+    <div class="card mb-3">
+        <div class="card-body" style="height: 350px; overflow-y: auto; background: #f8f9fa;" id="chat-history">
+            @if (Model.ChatHistory != null && Model.ChatHistory.Any())
+            {
+                foreach (var msg in Model.ChatHistory)
+                {
+                    <div class="mb-2">
+                        <span style="font-weight:bold; color:@(msg.Role == "User" ? "#007bff" : "#28a745")">
+                            @(msg.Role == "User" ? "You" : "AI")
+                        </span>:
+                        <span>@msg.Message</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-muted">No conversation yet. Start chatting with AI!</div>
+            }
+        </div>
+        <form method="post" asp-page-handler="Send" class="card-footer d-flex" style="gap: 8px;">
+            <input asp-for="UserPrompt" class="form-control" placeholder="Type your question..." autocomplete="off" />
+            <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger m-2">@Model.ErrorMessage</div>
+        }
+    </div>
+
+    @* Hiển thị bảng kết quả nếu có *@
+    @if (Model.TableResult != null && Model.TableResult.Count > 0)
+    {
+        <div class="card mt-3">
+            <div class="card-header">Query Result</div>
+            <div class="card-body" style="overflow-x:auto;">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            @foreach (var header in Model.TableHeaders)
+                            {
+                                <th>@header</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Model.TableResult)
+                        {
+                            <tr>
+                                @foreach (var header in Model.TableHeaders)
+                                {
+                                    <td>
+                                        @{
+                                            var cell = row.ContainsKey(header) ? row[header] : "";
+                                            // Nếu là JSON, hiển thị trong <pre>
+                                            if (cell is string s && (s.StartsWith("{") || s.StartsWith("[")))
+                                            {
+                                                <pre>@cell</pre>
+                                            }
+                                            else
+                                            {
+                                                @cell
+                                            }
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
