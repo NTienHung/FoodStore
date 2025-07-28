@@ -11,7 +11,6 @@ namespace FoodStoreClient.Pages.Admin.Restoran_Management_ChatBot
 {
     public class ChatBotModel : PageModel
     {
-        // Lưu lịch sử chat (role: "User" hoặc "AI", message: nội dung)
         public class ChatMessage
         {
             public string Role { get; set; }
@@ -23,11 +22,9 @@ namespace FoodStoreClient.Pages.Admin.Restoran_Management_ChatBot
         public List<ChatMessage> ChatHistory { get; set; } = new List<ChatMessage>();
         public string ErrorMessage { get; set; }
 
-        // Thuộc tính cho bảng động
         public List<Dictionary<string, object>> TableResult { get; set; } = new();
         public List<string> TableHeaders { get; set; } = new();
 
-        // Đơn giản: lưu lịch sử chat vào TempData (hoặc có thể dùng Session)
         private const string ChatHistoryKey = "ChatHistory";
 
         public void OnGet()
@@ -45,7 +42,6 @@ namespace FoodStoreClient.Pages.Admin.Restoran_Management_ChatBot
                 return Page();
             }
 
-            // Thêm câu hỏi vào lịch sử
             ChatHistory.Add(new ChatMessage { Role = "User", Message = UserPrompt });
 
             try
@@ -61,20 +57,26 @@ namespace FoodStoreClient.Pages.Admin.Restoran_Management_ChatBot
                     var respString = await response.Content.ReadAsStringAsync();
                     using var doc = JsonDocument.Parse(respString);
 
-                    // Lấy summary như cũ
                     var aiMsg = doc.RootElement.TryGetProperty("summary", out var summaryProp)
                         ? summaryProp.GetString()
                         : respString;
                     ChatHistory.Add(new ChatMessage { Role = "AI", Message = aiMsg });
 
-                    // Lấy bảng result nếu có
+                    if (doc.RootElement.TryGetProperty("sql", out var sqlProp))
+                    {
+                        var sql = sqlProp.GetString();
+                        if (!string.IsNullOrWhiteSpace(sql))
+                        {
+                            Console.WriteLine($"[SQL Generated]: {sql}");
+                        }
+                    }
+
                     if (doc.RootElement.TryGetProperty("result", out var resultProp))
                     {
                         if (resultProp.ValueKind == JsonValueKind.Object)
                         {
                             var obj = resultProp;
 
-                            // Nếu object có chứa "$values" => lấy ra để hiển thị thành nhiều dòng
                             if (obj.TryGetProperty("$values", out var innerArray) && innerArray.ValueKind == JsonValueKind.Array)
                             {
                                 TableResult = new List<Dictionary<string, object>>();
@@ -89,12 +91,10 @@ namespace FoodStoreClient.Pages.Admin.Restoran_Management_ChatBot
                                     TableResult.Add(row);
                                 }
 
-                                // Lấy header từ dòng đầu
                                 TableHeaders = TableResult.FirstOrDefault()?.Keys.ToList() ?? new List<string>();
                             }
                             else
                             {
-                                // Trường hợp object bình thường không có "$values"
                                 var dict = new Dictionary<string, object>();
                                 foreach (var prop in obj.EnumerateObject())
                                 {

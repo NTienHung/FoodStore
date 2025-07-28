@@ -27,7 +27,9 @@ namespace FoodStoreAPI.Controllers.Admin
             try
             {
                 var res = await _chatBotDAO.CallChatGPT(request.request);
-                //var cleanJson = JsonConvert.SerializeObject(res.result); 
+                
+                Console.WriteLine(res.sql);
+
                 return Ok(new
                 {
                     summary = res.summary,

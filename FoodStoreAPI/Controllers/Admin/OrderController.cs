@@ -82,7 +82,12 @@ namespace FoodStoreAPI.Controllers.Admin
             return Ok(result);
         }
 
-
+        [HttpGet("Admin/GetAllOrderDetail")]
+        public IActionResult GetAllOrderDetail()
+        {
+            var result = OrderDAO.GetAllOrderDetail();
+            return Ok(result);
+        }
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FoodStoreAPI.DTO;
+using FoodStoreAPI.DTOs;
 using FoodStoreAPI.Models;
 using Microsoft.EntityFrameworkCore;
 namespace FoodStoreAPI.DAO
@@ -684,6 +685,44 @@ namespace FoodStoreAPI.DAO
                 })
                 .ToList();
         }
+
+        public static List<OrderDetailDTO> GetAllOrderDetail()
+        {
+            using (var context = new FoodStoreContext())
+            {
+                var orders = context.Orders
+                    .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                    .ThenInclude(p => p.Cate)
+                    .Select(o => new OrderDetailDTO
+                    {
+                        OrderId = o.OrderId,
+                        CustomerId = o.CustomerId,
+                        Gtotal = (decimal)o.Gtotal,
+                        CreateAt = o.CreateAt,
+                        UpdateAt = o.UpdateAt,
+                        Status = o.Status,
+                        OrderDate = o.OrderDate,
+                        OrderItems = o.OrderItems.Select(oi => new OrderItemsDTO
+                        {
+                            OrderItemId = oi.OrderItemId,
+                            OrderId = oi.OrderId,
+                            ProductId = oi.ProductId,
+                            Quantity = oi.Quantity,
+                            CreateAt = oi.CreateAt,
+                            UpdateAt = oi.UpdateAt,
+                            Name = oi.Product != null ? oi.Product.Name : null,
+                            Price = oi.Product != null ? oi.Product.Price : null,
+                            Images = oi.Product != null ? oi.Product.Images : null,
+                            OriginalPrice = oi.Product != null ? oi.Product.OriginalPrice : null,
+                            CategoryName = oi.Product != null && oi.Product.Cate != null ? oi.Product.Cate.CateName : null
+                        }).ToList()
+                    })
+                    .ToList();
+                return orders;
+            }
+        }
+
 
     }
 }
